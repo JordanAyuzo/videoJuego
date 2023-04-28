@@ -1,6 +1,8 @@
 import { Component,OnInit } from '@angular/core';
 import * as THREE from 'three';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 @Component({
+
   selector: 'app-juego',
   templateUrl: './juego.component.html',
   styleUrls: ['./juego.component.css']
@@ -14,7 +16,7 @@ export class JuegoComponent implements OnInit {
 
       const camera = new THREE.PerspectiveCamera(45, window.innerWidth /
       window.innerHeight, 0.1, 20);
-      camera.position.z = 7;
+      camera.position.z = 8;
 
       const renderer = new THREE.WebGLRenderer({ canvas,antialias: true});
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -152,7 +154,33 @@ export class JuegoComponent implements OnInit {
       scene.add( arbol2); 
       scene.add(cube);
       renderer.render(scene, camera);
+     
       
+    const controls = new OrbitControls(camera, canvas)
+    renderer.render(scene, camera);
+    var rotx =0
+    function animate()
+    {
+      if(rotx<2.1){
+        rotx  = (rotx+.01)
+      console.log(rotx);      
+      }
+      if(rotx>2){
+        rotx  = (rotx-.1)
+      console.log(rotx);      
+      }      
+
+      requestAnimationFrame(animate)
+      controls.update();
+      renderer.render(scene, camera)
+      arbol1.position.x=rotx
+    }
+var esferaEjes = new THREE.AxesHelper(20);
+arbol1.add(esferaEjes);
+
+animate()
     }
 
+
+    
 }
