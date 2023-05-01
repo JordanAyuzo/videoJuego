@@ -1,6 +1,7 @@
 import { Component,OnInit } from '@angular/core';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import { randFloat, randInt } from 'three/src/math/MathUtils';
 @Component({
 
   selector: 'app-juego',
@@ -10,14 +11,17 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 export class JuegoComponent implements OnInit {
 
     ngOnInit(){
+      /*configuracion inicial*/
       const canvas = <HTMLCanvasElement>document.getElementById('miCanvas');
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x87CEEB)
 
       const camera = new THREE.PerspectiveCamera(45, window.innerWidth /
       window.innerHeight, 0.1, 20);
-      camera.position.z = 8;
-
+      camera.position.set(0, 1, -.5); // coloca la cámara en el origen
+      camera.lookAt(new THREE.Vector3(0, 2.3, 2.3));
+      camera.far = 800;
+      camera.updateProjectionMatrix();
       const renderer = new THREE.WebGLRenderer({ canvas,antialias: true});
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.render(scene, camera);
@@ -27,160 +31,206 @@ export class JuegoComponent implements OnInit {
       const light = new THREE.DirectionalLight(color, intensity);
       light.position.set(-1,2, 4);
       scene.add(light);
+      /****************************************/
+       /*Para Cargar Texturas*/
+      const textureLoader = new THREE.TextureLoader();
+      const pastoTextura = textureLoader.load('assets/misTexturas/pasto.jpg');
+      const carreteraTextura = textureLoader.load('assets/misTexturas/carretera.jpg');
+      const hojasTextura = textureLoader.load('assets/misTexturas/hojas.jpg');
+      const troncoRobleTextura = textureLoader.load('assets/misTexturas/tronco.jpg');
+      const hojasAbetoTextura = textureLoader.load('assets/misTexturas/hojasAbeto.jpg');
+      const troncoAbetoTextura = textureLoader.load('assets/misTexturas/troncoAbeto.jpg');
+      const montaniaTextura = textureLoader.load('assets/misTexturas/montania.jpg');
+      const volcanTextura = textureLoader.load('assets/misTexturas/fire.jpg');
+      const smokeTextura = textureLoader.load('assets/misTexturas/smoke.png');
+      /**************Escena1***************/
+      /*Pasto Derecho*/
+      const anchoPasto = 40;
+      const altoPasto = .2;
+      const profundidadPasto = 80;
+      const dimensionesPasto = new THREE.BoxGeometry(anchoPasto,altoPasto,profundidadPasto );
+      const materialPasto =new THREE.MeshBasicMaterial({ map: pastoTextura });
+      const pastoDerecho = new THREE.Mesh(dimensionesPasto, materialPasto);
+      pastoDerecho.position.set(-27.5, 0, 40);
+      //scene.add(pastoDerecho)
+      /*Pasto izquierdo*/
+      const pastoIzquierdo = new THREE.Mesh(dimensionesPasto, materialPasto);
+      pastoIzquierdo.position.set(27.5, 0, 40);
+      //scene.add(pastoIzquierdo)
+      /*Carretera*/
+      const anchoCarretera = 15;
+      const altoCarretera = .2;
+      const profundidadCarretera = 80;
+      const dimensionesCarretera = new THREE.BoxGeometry(anchoCarretera,altoCarretera,profundidadCarretera );
+      const materialCarretera =new THREE.MeshBasicMaterial({ map: carreteraTextura });
+      const carretera = new THREE.Mesh(dimensionesCarretera, materialCarretera);
+      carretera.position.set(0, 0, 40);
+      //scene.add(carretera)
+      /*Unir escena y duplicarlo*/
+      var chunk1 = new THREE.Group()
+      chunk1.add(pastoDerecho)
+      chunk1.add(carretera)
+      chunk1.add(pastoIzquierdo)
+      scene.add(chunk1)
+      var chunk2 = chunk1.clone()
+      chunk2.position.set(0, 0,80);
+      scene.add(chunk2);
+      /***********Arbol*****************/
+          /* hojas*/
+          var dimensionesHojas = new THREE.SphereGeometry(1.5, 6, 6);
+          var materialHojas = new THREE.MeshBasicMaterial({ map: hojasTextura });
+          var hojas = new THREE.Mesh(dimensionesHojas, materialHojas);
+          hojas.position.set(0,3,0)
+          /*tronco */
+          const dimensionesTronco = new THREE.CylinderGeometry( .4, .4, 2, 20 );
+          const materialTroncoRoble = new THREE.MeshBasicMaterial({ map: troncoRobleTextura });
+          var tronco = new THREE.Mesh(dimensionesTronco, materialTroncoRoble);
+          tronco.position.set(0,1,0)
+          /*Creamos un arbol  completo*/
+          var arbol1 = new THREE.Group()
+          arbol1.add(hojas)
+          arbol1.add(tronco)
+          /*arbol2*/
+          var materialHojasAbeto = new THREE.MeshBasicMaterial({ map: hojasAbetoTextura });
+          const materialTroncoAbeto = new THREE.MeshBasicMaterial({ map: troncoAbetoTextura });
+          var hojasAbeto = new THREE.Mesh(dimensionesHojas, materialHojasAbeto);
+          hojasAbeto.position.set(0,3,0)
+          var troncoAbeto = new THREE.Mesh(dimensionesTronco, materialTroncoAbeto);
+          troncoAbeto.position.set(0,1,0)
+          var arbol2 = new THREE.Group()
+          arbol2.add(hojasAbeto)
+          arbol2.add(troncoAbeto)
+
+          
+          const arboles: THREE.Object3D[] = [];
+
+for (let i = 1; i <= 30; i++) {
+  const nuevoArbol = arbol1.clone(); // Clonar el objeto "arbol1"
+  nuevoArbol.position.set (randFloat(10,40), 0, randInt(5,80)); // Establecer la posición del nuevo árbol
+  arboles.push(nuevoArbol); // Agregar el nuevo árbol a la matriz
+  scene.add(nuevoArbol); // Agregar el nuevo árbol a la escena
+}
+
+for (let i = 1; i <= 30; i++) {
+  const nuevoArbol = arbol2.clone(); // Clonar el objeto "arbol2"
+  nuevoArbol.position.set (randFloat(10,40), 0, randInt(5,80)); // Establecer la posición del nuevo árbol
+  arboles.push(nuevoArbol); // Agregar el nuevo árbol a la matriz
+  scene.add(nuevoArbol); // Agregar el nuevo árbol a la escena
+}
+console.log(arboles);
 
 
-      //montania
-      var yy=3.8;
-      const radius = 2;
-      const height = 3;
-      const radialSegments = 8;
-      const heightSegments = 2;
-      const openEnded = false;
-      const geometry4 = new THREE.ConeGeometry(radius, height, radialSegments, heightSegments, openEnded);
-      const geometry5 = new THREE.ConeGeometry(radius, height, radialSegments, heightSegments, openEnded);
-      const material4 = new THREE.MeshPhongMaterial({ color: 0x008000 });
-      const cone = new THREE.Mesh(geometry4, material4);
-      const cone2 = new THREE.Mesh(geometry4, material4);
-      const cone3 = new THREE.Mesh(geometry4, material4);
-      const cone4 = new THREE.Mesh(geometry4, material4);
-      const cone5 = new THREE.Mesh(geometry4, material4);
-      const cone6 = new THREE.Mesh(geometry4, material4);
-      const cone7 = new THREE.Mesh(geometry4, material4);
-      const cone8 = new THREE.Mesh(geometry4, material4);
-      cone.position.set(-10,yy,-8);
-      cone2.position.set(-6,yy,-8);
-      cone3.position.set(-8,yy,-8);
-      cone4.position.set(3,yy,-8);
-      cone5.position.set(5,yy,-8);
-      cone6.position.set(7,yy,-8);
-      cone7.position.set(9,yy,-8);
-      cone8.position.set(-3.8,yy,-8);
-      //
-      //calle
-      const anchoCubo = 3;
-      const altoCubo = .1;
-      const profundidadCubo = 30;
-      const geometry = new THREE.BoxGeometry(anchoCubo, altoCubo, profundidadCubo);
-      const material = new THREE.MeshPhongMaterial({ color:  0x808080});
-      const cube = new THREE.Mesh(geometry, material);
-      cube.rotation.x = 119.7;
-      cube.rotation.y = 110;
+          /********************************/
+          /*montania*/
+          const dimensionesMontania = new THREE.CylinderGeometry( .5, 15, 15, 10);
+          const materialMontania = new THREE.MeshBasicMaterial({ map: montaniaTextura });
+          var montania = new THREE.Mesh(dimensionesMontania, materialMontania);
+          montania.position.set(-25,8,60)
+          scene.add(montania)
+          const dimensionesvolcan = new THREE.CylinderGeometry( .5, 4, 4, 10);
+          const materialvolcan = new THREE.MeshBasicMaterial({ map: volcanTextura });
+          var montania = new THREE.Mesh(dimensionesvolcan, materialvolcan);
+          montania.position.set(-25,14,60)
+          scene.add(montania)
+          
 
-      const geometry2 = new THREE.BoxGeometry(8.5, altoCubo,70 );
-      const material1 = new THREE.MeshPhongMaterial({ color:  0x6b8e23});
-      const gard = new THREE.Mesh(geometry2, material1);
-      gard.rotation.x = 119.7;
-      gard.rotation.y = 110;
-      gard.position.x=6.1;
+          const dimensionesmoke = new THREE.CylinderGeometry( .3, .5, 4, 10);
+          const materialsmoke = new THREE.PointsMaterial({
+            color: 0x999999,
+            size: 10,
+            map: smokeTextura,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+          });
+          
+          var smoke = new THREE.Mesh(dimensionesmoke, materialsmoke);
+          smoke.position.set(-25,16.4,58)
+          smoke.rotateX(5)
+          scene.add(smoke)
+          /*player*/
+          const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+          // Crea un cubo de objeto llamado player1
+        const geometry = new THREE.BoxGeometry(1, 1, 1)
+        const player1 = new THREE.Mesh(geometry, material)
+        scene.add(player1)
+        
+        function detectarColisiones() {
+          const raycaster = new THREE.Raycaster();
+          const colisiones = raycaster.intersectObjects(scene.children);
+          
+          for (let i = 0; i < colisiones.length; i++) {
+            const objeto = colisiones[i].object;
+            for (let z = 0; z < arboles.length; z++) {
+            if (arboles[z].name ==  "" ) {
+              const distancia = player1.position.distanceTo(objeto.position);
+              if (distancia < 2) {
+                // Aquí puedes agregar el código para hacer algo cuando player1 colisione con un árbol
+                console.log('Colisión detectada!');
+              }
+            }}
+          }
+        }
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.target.set(0, 1, 0)
+        controls.update()
       
-      const geometryb = new THREE.BoxGeometry(8.5, altoCubo,70 );
-      const gard2 = new THREE.Mesh(geometryb, material1);
-      gard2.rotation.x = 119.7;
-      gard2.rotation.y = 110;
-      gard2.position.x=-6.1;
+        // Agrega un listener para el evento de teclado para mover el objeto player1
+        const moveForward = () => {
+          const speed = 0.1
+          const velocity = new THREE.Vector3()
+          player1.getWorldDirection(velocity)
+          player1.position.addScaledVector(velocity, speed)
+        }
       
-      const materialc = new THREE.MeshPhongMaterial({ color:  0x333333});
-      const geometryc = new THREE.BoxGeometry(.34,.3,70 );
-      const banca = new THREE.Mesh(geometryc, materialc);
-      banca.rotation.x = 119.7;
-      banca.rotation.y = 110;
-      banca.position.x=-1.68;
+        const moveBackward = () => {
+          const speed = -0.1
+          const velocity = new THREE.Vector3()
+          player1.getWorldDirection(velocity)
+          player1.position.addScaledVector(velocity, speed)
+        }
       
-      const banca2 = new THREE.Mesh(geometryc, materialc);
-      banca2.rotation.x = 119.7;
-      banca2.rotation.y = 110;
-      banca2.position.x=1.68;
+        const moveLeft = () => {
+          const speed = -0.1
+          const velocity = new THREE.Vector3()
+          player1.getWorldDirection(velocity)
+          velocity.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
+          player1.position.addScaledVector(velocity, speed)
+        }
       
-      const materiald = new THREE.MeshPhongMaterial({ color:  0xF2D41F});
-      const geometryd = new THREE.BoxGeometry(.34,.1,70 );
-      const line = new THREE.Mesh(geometryd, materiald);
-      line.rotation.x = 119.7;
-      line.rotation.y = 110;
-      line.position.x=0;
+        const moveRight = () => {
+          const speed = 0.1
+          const velocity = new THREE.Vector3()
+          player1.getWorldDirection(velocity)
+          velocity.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
+          player1.position.addScaledVector(velocity, speed)
+        }
       
-
-      /*Arbol*/
-      //esfera hojas
-      var esferaGeometry = new THREE.SphereGeometry(.5, 8, 8);
-      var esferaMaterial = new THREE.MeshLambertMaterial({
-      color: 0x228B22,
-      wireframe: false
-      });
-      //cilindro tronco
-      const geometry3 = new THREE.CylinderGeometry( .1, .1, 1, 20 );
-      const material3 = new THREE.MeshLambertMaterial( {color: 0x8B4513 } );
-      //creacion de los elementos del arbol
-
-
-      var hojas = new THREE.Mesh( geometry3, material3 );
-      var tronco = new THREE.Mesh(esferaGeometry, esferaMaterial);
-      var hojas2 = new THREE.Mesh( geometry3, material3 );
-      var tronco2 = new THREE.Mesh(esferaGeometry, esferaMaterial);
-      var hojas3 = new THREE.Mesh( geometry3, material3 );
-      var tronco3 = new THREE.Mesh(esferaGeometry, esferaMaterial);
-      tronco.position.set(0, 1.2, 0);
-      hojas.position.set(0, .5, 0);
-      tronco2.position.set(0, 1.2, 0);
-      hojas2.position.set(0, .5, 0);
-      //crea conjunto arbol
-      var arbol1 = new THREE.Group(); // Crea un grupo para unir las diferentes partes del árbol
-      arbol1.add(tronco);
-      arbol1.add(hojas);
-      var arbol2 = new THREE.Group(); // Crea un grupo para unir las diferentes partes del árbol
-      arbol2.add(tronco2);
-      arbol2.add(hojas2);
-      /*-----------------termina arbol--------------------*/
-      arbol1.position.set(-3,-.5,1)
-      arbol2.position.set(2.9,.3,-1.5)
-
-
-
-
-
-      scene.add(cone2)
-      scene.add(cone3)
-      scene.add(cone4)
-      scene.add(cone5)
-      scene.add(cone6)
-      scene.add(cone7)
-      scene.add(cone8)
-      scene.add(cone);
-      scene.add(gard)
-      scene.add(gard2)
-      scene.add(banca)
-      scene.add(banca2)
-      scene.add(line)
-      scene.add( arbol1); 
-      scene.add( arbol2); 
-      scene.add(cube);
-      renderer.render(scene, camera);
-     
+        document.addEventListener('keydown', (event) => {
+          switch (event.code) {
+            case 'KeyW':
+              moveForward()
+              break
+            case 'KeyS':
+              moveBackward()
+              break
+            case 'KeyA':
+              moveLeft()
+              break
+            case 'KeyD':
+              moveRight()
+              break
+          }
+        })
       
-    const controls = new OrbitControls(camera, canvas)
-    renderer.render(scene, camera);
-    var rotx =0
-    function animate()
-    {
-      if(rotx<2.1){
-        rotx  = (rotx+.01)
-      console.log(rotx);      
-      }
-      if(rotx>2){
-        rotx  = (rotx-.1)
-      console.log(rotx);      
-      }      
-
-      requestAnimationFrame(animate)
-      controls.update();
-      renderer.render(scene, camera)
-      arbol1.position.x=rotx
+        // Crea una función de animación que actualiza la escena y los controles de la cámara
+        function animate() {
+          requestAnimationFrame(animate)
+          controls.update()
+          detectarColisiones();
+          renderer.render(scene, camera)
+        }
+        animate()
     }
-var esferaEjes = new THREE.AxesHelper(20);
-arbol1.add(esferaEjes);
-
-animate()
-    }
-
-
-    
+  
 }
