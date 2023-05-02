@@ -156,20 +156,7 @@ console.log(arboles);
         scene.add(player1)
         
         function detectarColisiones() {
-          const raycaster = new THREE.Raycaster();
-          const colisiones = raycaster.intersectObjects(scene.children);
           
-          for (let i = 0; i < colisiones.length; i++) {
-            const objeto = colisiones[i].object;
-            for (let z = 0; z < arboles.length; z++) {
-            if (arboles[z].name ==  "" ) {
-              const distancia = player1.position.distanceTo(objeto.position);
-              if (distancia < 2) {
-                // Aquí puedes agregar el código para hacer algo cuando player1 colisione con un árbol
-                console.log('Colisión detectada!');
-              }
-            }}
-          }
         }
         const controls = new OrbitControls(camera, renderer.domElement)
         controls.target.set(0, 1, 0)
