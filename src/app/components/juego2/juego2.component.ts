@@ -2,6 +2,7 @@ import { Component,OnInit } from '@angular/core';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import { randFloat, randInt } from 'three/src/math/MathUtils';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 @Component({
   selector: 'app-juego2',
@@ -25,16 +26,39 @@ export class Juego2Component {
       renderer.render(scene, camera);
 
       const color = 0xffffff;
-      const intensity = 5;
+      const intensity = 10;
       const light = new THREE.DirectionalLight(color, intensity);
-      light.position.set(-1,-2, 4);
-
-
+      light.position.set(15,15, 15);
       scene.add(light);
 
+
+      const light2 = new THREE.AmbientLight(color, intensity);
+      light2.position.set(15,15, 15);
+      scene.add(light2);
+
       const textureLoader = new THREE.TextureLoader();
-      const texture1 = textureLoader.load('assets/misTexturas/tronco.jpg');
+      const texture1 = textureLoader.load('assets/misTexturas/montania.jpg');
       /****************************************/
+        /* prueba*/
+        const loader = new GLTFLoader();
+
+      loader.load( 'assets/mismodelos/casa.glb', function ( gltf ) {
+
+        scene.add( gltf.scene );
+
+      }, undefined, function ( error ) {
+
+        console.error( error );
+
+      } );
+
+      /*mesa*/
+      const materialtabla = new THREE.MeshBasicMaterial({ map:texture1 })
+      const geometrytabla = new THREE.BoxGeometry(16, .5, 16)
+      const tabla = new THREE.Mesh(geometrytabla, materialtabla)
+      tabla.position.set(4,-.5,4)
+      scene.add(tabla)
+
       /*obscuro*/
       const material = new THREE.MeshBasicMaterial({ color: 0xaf5d4a })
       const geometry = new THREE.BoxGeometry(1, .5, 1)
@@ -52,11 +76,11 @@ export class Juego2Component {
           var dama = new THREE.Mesh(dimensionesdama, materialdama);
           //dama.position.set(1,.35,1)
 
-          const materialdamanegra= new THREE.MeshBasicMaterial({ color: 0x000000 })
+          const materialdamanegra= new THREE.MeshLambertMaterial({ color: 0x000000 })
           var damanegra = new THREE.Mesh(dimensionesdama, materialdamanegra);
           //damanegra.position.set(1,.35,1)
           //scene.add(dama)
-
+          //piezas blancas creo
           for (let x = 1; x <= 3; x++) {
               for (let z = 1; z <= 8; z++) {
                 const daman = dama.clone();
@@ -93,9 +117,10 @@ export class Juego2Component {
         }
         }    
       }    
-    }
-      
-      
+    } 
+
+
+
       for (let i = 1; i <= 4; i++) {
         const blanco1 = player1.clone(); // Clonar el objeto "arbol1"
         blanco1.position.set (i*2,0, 0); // Establecer la posición del nuevo árbol
