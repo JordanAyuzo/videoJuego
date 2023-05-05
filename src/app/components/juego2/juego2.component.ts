@@ -11,6 +11,16 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 })
 export class Juego2Component {
   ngOnInit(){
+    let M =[[0,1,0,1,0,1,0,1],
+            [1,0,1,0,1,0,1,0],
+            [0,1,0,1,0,1,0,1],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [1,0,1,0,1,0,1,0],
+            [0,1,0,1,0,1,0,1],
+            [1,0,1,0,1,0,1,0],
+  
+            ] 
       /*configuracion inicial*/
       const canvas = <HTMLCanvasElement>document.getElementById('miCanvas');
       const scene = new THREE.Scene();
@@ -40,18 +50,6 @@ export class Juego2Component {
       const texture1 = textureLoader.load('assets/misTexturas/montania.jpg');
       /****************************************/
         /* prueba*/
-        const loader = new GLTFLoader();
-
-      loader.load( 'assets/mismodelos/casa.glb', function ( gltf ) {
-
-        scene.add( gltf.scene );
-
-      }, undefined, function ( error ) {
-
-        console.error( error );
-
-      } );
-
       /*mesa*/
       const materialtabla = new THREE.MeshBasicMaterial({ map:texture1 })
       const geometrytabla = new THREE.BoxGeometry(16, .5, 16)
@@ -118,9 +116,6 @@ export class Juego2Component {
         }    
       }    
     } 
-
-
-
       for (let i = 1; i <= 4; i++) {
         const blanco1 = player1.clone(); // Clonar el objeto "arbol1"
         blanco1.position.set (i*2,0, 0); // Establecer la posición del nuevo árbol
@@ -147,7 +142,29 @@ export class Juego2Component {
           scene.add(bar2)
         }
       }
+
+      /* prueba*/
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      function detectarClick(event:any){
+        pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        raycaster.setFromCamera(pointer,camera)
+        const intersects = raycaster.intersectObjects( scene.children );
+        
+        for ( let i = 0; i < intersects.length; i ++ ) {
+          if(intersects[i].object.userData['draggable']){
+            console.log(intersects[i].object.position)
+          }
+          //intersects[ i ].object.material.color.set( 0xff0000 );
       
+        }
+      
+        console.log(pointer);
+        
+      }
+      window.addEventListener('click',detectarClick)
+
       
       const controls = new OrbitControls(camera, renderer.domElement)
       controls.target.set(0, 1, 0)
