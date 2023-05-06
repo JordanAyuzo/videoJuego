@@ -11,14 +11,14 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 })
 export class Juego2Component {
   ngOnInit(){
-    let M =[[0,1,0,1,0,1,0,1],
-            [1,0,1,0,1,0,1,0],
-            [0,1,0,1,0,1,0,1],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [1,0,1,0,1,0,1,0],
+    let M =[[1,0,1,0,1,0,1,0],
             [0,1,0,1,0,1,0,1],
             [1,0,1,0,1,0,1,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,1,0,1,0,1,0,1],
+            [1,0,1,0,1,0,1,0],
+            [0,1,0,1,0,1,0,1],
   
             ] 
       /*configuracion inicial*/
@@ -86,12 +86,14 @@ export class Juego2Component {
                   if (z%2!=0) {
                       daman.position.set(x,.35,z)
                       //console.log(x,",",z);
+                      daman.userData['draggable']=true
                       scene.add(daman) 
                   }
             }else{
               if (z%2==0) {
                 daman.position.set(x,.35,z)
                 //console.log(x,",",z);
+                daman.userData['draggable']=true
                 scene.add(daman) 
             }
             }   
@@ -105,12 +107,14 @@ export class Juego2Component {
               if (zz%2!=0) {
                   daman.position.set(xx,.35,zz)
                   console.log(xx,",",zz);
+                  daman.userData['draggable']=true
                   scene.add(daman)
               }
         }else{
           if (zz%2==0) {
             daman.position.set(xx,.35,zz)
-            console.log(xx,",",zz);
+            //console.log(xx,",",zz);
+            daman.userData['draggable']=true
             scene.add(daman)
         }
         }    
@@ -154,13 +158,23 @@ export class Juego2Component {
         
         for ( let i = 0; i < intersects.length; i ++ ) {
           if(intersects[i].object.userData['draggable']){
-            console.log(intersects[i].object.position)
+            console.log(intersects[i].object.position)//
+            //const materialdama= new THREE.MeshBasicMaterial({ color: 0xFFFFFF })
+            const damat = new THREE.Mesh(dimensionesdama, materialdama);
+            console.log("x= "+intersects[i].object.position.x +", z=" + intersects[i].object.position.z );
+            console.log(M[intersects[i].object.position.x -1][intersects[i].object.position.z -1 ]);
+            
+            //if(M[intersects[i].object.position.z +1,intersects[i].object.position.x +1])
+            damat.position.set(intersects[i].object.position.x +1,.35,intersects[i].object.position.z +1)
+            //scene.add(damat)
+
           }
           //intersects[ i ].object.material.color.set( 0xff0000 );
+
       
         }
       
-        console.log(pointer);
+        console.log("."+pointer);
         
       }
       window.addEventListener('click',detectarClick)

@@ -83,7 +83,7 @@ export class JuegoComponent implements OnInit {
         const max1 = tamanioCuarto+1;
         const max2 =  tamanioCuarto;
         const paredes:any = [];
-      for (let x = 0; x <=1; x++) {
+      for (let x = 0; x <=100; x++) {
         const rotacion =Math.floor(Math.random() * (1 - 0 + 1));
         const paredSuave = new THREE.Mesh(formaParedH, materialParedS);
         const dirxs = Math.floor(Math.random() * (max2 - min2 + 1)) + min2;
@@ -114,7 +114,6 @@ export class JuegoComponent implements OnInit {
           const distanciaZ = Math.abs(paredes[i].position.z - jugador.position.z );
           if(paredes[i].rotation.y== 0){
             if ((distanciaX <(anchoParedH/2)+0.2) && distanciaZ < (profundidadParedH/ 2 + 0.205)) {
-            console.log("no pasa");
               return true;
           }
           }else{
@@ -137,7 +136,6 @@ textureLoader.load('assets/Female Walk.fbx',
 {
 materials.preload()
 //console.log(materials)
-const objLoader = new OBJLoader()
 fbxLoader.load('assets/Female Walk.fbx',
 ( obj:any ) =>
 {
@@ -166,7 +164,7 @@ console.log('An error happened',error)
 })
 
 }
-      //cargarModeloFbx();
+      cargarModeloFbx();
 
 
       const dirxp = Math.floor(Math.random() * (max2 - min2 + 4)) + min2+4;
@@ -179,14 +177,22 @@ console.log('An error happened',error)
       scene.add(jugador)
       //jugador.name = "jugador";
       /*movimiento de la camara*/
+      let jugadorrespaldo:any
+      let jugadorrespaldox:any
       function onKeyDown(event:any) {
+        
         switch (event.keyCode) {
           case 87: // Tecla "w"
             if(jugador.position.z <=tamanioCuarto+1.5){
+              
               if (!haycolision(jugador)){
+                jugadorrespaldo = jugador.position.z 
+                console.log((jugadorrespaldo));
                 jugador.position.z += 0.1; // Avanzar hacia adelante
               }else{
-                jugador.position.z -= 0.1;
+                
+                console.log((jugadorrespaldo));
+                jugador.position.z = jugadorrespaldo;
               } 
               
             }
@@ -195,9 +201,10 @@ console.log('An error happened',error)
           case 83: // Tecla "s"
           if(jugador.position.z >= 0.25){
             if (!haycolision(jugador)){
+              jugadorrespaldo = jugador.position.z 
               jugador.position.z -= 0.1; // Avanzar hacia atrás
             }else{
-              jugador.position.z += 0.1;
+              jugador.position.z = jugadorrespaldo;
             } 
           }
             break;
@@ -206,9 +213,10 @@ console.log('An error happened',error)
             {
 
                if (!haycolision(jugador)){
+                jugadorrespaldox = jugador.position.x 
                 jugador.position.x += 0.1; // Mover a la izquierda
                }else{
-                jugador.position.x -= 0.1;
+                jugador.position.x = jugadorrespaldox;
               } 
               
             }
@@ -217,9 +225,10 @@ console.log('An error happened',error)
           case 68: // Tecla "d"
           if(jugador.position.x >= -tamanioCuarto+.5){
             if (!haycolision(jugador)){
+              jugadorrespaldox = jugador.position.x 
               jugador.position.x -= 0.1; // Mover a la derecha
             }else{
-              jugador.position.x += 0.1;
+              jugador.position.x = jugadorrespaldox;
             } 
           }
             
